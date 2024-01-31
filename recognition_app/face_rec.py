@@ -1,5 +1,5 @@
 import time
-from datetime import time
+from datetime import datetime
 
 import cv2
 import numpy as np
@@ -72,32 +72,74 @@ def ml_search_algorithm(df,
     return person_name, person_role
 
 
-def face_prediction(test_image,
-                    df,
-                    feature_column,
-                    name_role=['Name', 'Role'],
-                    thresh=0.5):
-    # step-0: find the time
+# real time prediction, saving logs every 1 minute
+class RealTimePred:
+    def __init__(self):
+        self.logs = dict(name=[], role=[], current_time=[])
 
-    # step-1: take the test image and apply to insight face
-    results = faceapp.get(test_image)
-    test_copy = test_image.copy()
 
-    # step-2: use for loop to extract each embedding to feed ml_search_algorithm
-    for res in results:
-        x1, y1, x2, y2 = res['bbox'].astype(int)
-        embeddings = res['embedding']
-        person_name, person_role = ml_search_algorithm(df,
-                                                       feature_column,
-                                                       test_vector=embeddings,
-                                                       name_role=name_role,
-                                                       thresh=thresh)
-        if person_name == 'Unknown':
-            color = (0,0,255)
-        else:
-            color = (0,255,0)
-        cv2.rectangle(test_copy, (x1,y1), (x2,y2), color)
-        text_gen = person_name
-        cv2.putText(test_copy, text_gen, (x1,y1), cv2.FONT_HERSHEY_DUPLEX, 0.5, color, 1)
+    def reset_logs(self):
+        self.logs = dict(name=[], role=[], current_time=[])
 
-    return test_copy
+    
+    def save_logs_redis(self):
+        # step-1: create a logs df
+        data_frame = pd.DataFrame(self.logs)
+
+        # step-2: drop duplicate information
+        data_frame.drop_duplicates('name', inplace=True)
+
+        # step-3: push data to redis database
+        # encode the data
+        name_list = data_frame['name'].tolist()
+        role_list = data_frame['role'].tolist()
+        ctime_list = data_frame['current_time'].tolist()
+        encoded_data = []
+
+        for name, role, ctime in zip(name_list, role_list, ctime_list):
+            if name != 'Unknown':
+                concat_string = f'{name}@{role}@{ctime}'
+                encoded_data.append(concat_string)
+
+        if len(encoded_data) > 0:
+            r.lpush('attendance:logs', *encoded_data)
+        
+        self.reset_logs()
+
+
+
+    def face_prediction(self,
+                        test_image,
+                        df,
+                        feature_column,
+                        name_role=['Name', 'Role'],
+                        thresh=0.5):
+        # step-0: find the time
+        current_time = str(datetime.now())
+
+        # step-1: take the test image and apply to insight face
+        results = faceapp.get(test_image)
+        test_copy = test_image.copy()
+
+        # step-2: use for loop to extract each embedding to feed ml_search_algorithm
+        for res in results:
+            x1, y1, x2, y2 = res['bbox'].astype(int)
+            embeddings = res['embedding']
+            person_name, person_role = ml_search_algorithm(df,
+                                                        feature_column,
+                                                        test_vector=embeddings,
+                                                        name_role=name_role,
+                                                        thresh=thresh)
+            if person_name == 'Unknown':
+                color = (0,0,255)
+            else:
+                color = (0,255,0)
+            cv2.rectangle(test_copy, (x1,y1), (x2,y2), color)
+            text_gen = person_name
+            cv2.putText(test_copy, text_gen, (x1,y1), cv2.FONT_HERSHEY_DUPLEX, 0.5, color, 1)
+            cv2.putText(test_copy, current_time, (x1,y2+10), cv2.FONT_HERSHEY_DUPLEX, 0.5, color, 1)
+            # save info in logs dict
+            self.logs['name'].append(person_name)
+            self.logs['role'].append(person_role)
+            self.logs['current_time'].append(current_time)
+        return test_copy
