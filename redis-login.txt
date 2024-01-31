@@ -1,0 +1,6 @@
+r = redis.Redis(
+    host="redis-11755.c308.sa-east-1-1.ec2.cloud.redislabs.com", 
+    port=11755,
+    username="default", # use your Redis user. More info https://redis.io/docs/management/security/acl/
+    password="CzdAM8ReaYrKSySrvShim7abK4ZENraC", # use your Redis password
+)
