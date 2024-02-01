@@ -35,6 +35,8 @@ webrtc_streamer(key='registration',video_frame_callback=video_callback_func,
     }
 )
 
+# webrtc_streamer(key='registration',video_frame_callback=video_callback_func)
+
 # ste-3: save data in redis db
 if st.button('Submit'):
     returned_val = registration_form.save_data_in_db(person_name, role)

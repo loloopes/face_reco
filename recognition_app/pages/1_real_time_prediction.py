@@ -17,7 +17,7 @@ with st.spinner('Retrieving data from redis db...'):
 st.success('Data succesfully retrieved from redis!')
 
 # time
-wait_time = 30
+wait_time = 10
 set_time = time.time()
 realtime_pred = face_rec.RealTimePred()
 
@@ -45,3 +45,5 @@ webrtc_streamer(key='realtime_prediction', video_frame_callback=video_frame_call
         "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
     }
 )
+
+# webrtc_streamer(key='realtime_prediction', video_frame_callback=video_frame_callback)

@@ -15,7 +15,7 @@ r = redis.StrictRedis(
 
 
 # config face analysis
-faceapp = FaceAnalysis(name='buffalo_l',
+faceapp = FaceAnalysis(name='buffalo_sc',
                        root='models',
                        providers=['CUDAExecutionProvider', 'CUDAExecutionProvider'])
 faceapp.prepare(ctx_id=0,

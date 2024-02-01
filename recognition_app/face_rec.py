@@ -31,7 +31,7 @@ def retrieve_data(name):
     return retrieved_df[['Name', 'Role', 'facial_features']]
 
 # config face analysis
-faceapp = FaceAnalysis(name='buffalo_l',
+faceapp = FaceAnalysis(name='buffalo_sc',
                        root='models',
                        providers=['CUDAExecutionProvider', 'CUDAExecutionProvider'])
 faceapp.prepare(ctx_id=0,
