@@ -5,7 +5,7 @@ import streamlit as st
 from home import face_rec
 from streamlit_webrtc import webrtc_streamer
 
-st.set_page_config(page_title='Predictions', layout='wide')
+# st.set_page_config(page_title='Predictions', layout='wide')
 st.subheader('Real-Time recognition system')
 
 
@@ -40,4 +40,8 @@ def video_frame_callback(frame):
 
     return av.VideoFrame.from_ndarray(pred_img, format='bgr24')
 
-webrtc_streamer(key='realtime_prediction', video_frame_callback=video_frame_callback)
+webrtc_streamer(key='realtime_prediction', video_frame_callback=video_frame_callback,
+                    rtc_configuration={
+        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+    }
+)

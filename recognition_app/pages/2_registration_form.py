@@ -5,7 +5,7 @@ import streamlit as st
 from home import face_rec
 from streamlit_webrtc import webrtc_streamer
 
-st.set_page_config(page_title='Registration form', layout='wide')
+# st.set_page_config(page_title='Registration form', layout='wide')
 st.subheader('Registration form')
 
 # init registration form
@@ -29,7 +29,11 @@ def video_callback_func(frame):
 
     return av.VideoFrame.from_ndarray(reg_img, format='bgr24')
 
-webrtc_streamer(key='registration',video_frame_callback=video_callback_func)
+webrtc_streamer(key='registration',video_frame_callback=video_callback_func,
+                    rtc_configuration={
+        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+    }
+)
 
 # ste-3: save data in redis db
 if st.button('Submit'):

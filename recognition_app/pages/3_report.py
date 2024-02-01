@@ -1,7 +1,7 @@
 import streamlit as st
 from home import face_rec
 
-st.set_page_config(page_title='Report', layout='wide')
+# st.set_page_config(page_title='Report', layout='wide')
 st.subheader('Reporting')
 
 
