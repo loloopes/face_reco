@@ -1,7 +1,8 @@
 import time
 
 import av
-from home import face_rec, st
+import streamlit as st
+from home import face_rec
 from streamlit_webrtc import webrtc_streamer
 
 st.set_page_config(page_title='Predictions', layout='wide')
@@ -11,7 +12,7 @@ st.subheader('Real-Time recognition system')
 # retrieve the data from redis db
 with st.spinner('Retrieving data from redis db...'):
     redis_face_db = face_rec.retrieve_data(name='academy:register')
-    st.dataframe(redis_face_db)
+    st.dataframe(redis_face_db[['Name', 'Role']])
 
 st.success('Data succesfully retrieved from redis!')
 

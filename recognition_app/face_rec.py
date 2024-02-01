@@ -1,3 +1,4 @@
+import os
 import time
 from datetime import datetime
 
@@ -143,3 +144,69 @@ class RealTimePred:
             self.logs['role'].append(person_role)
             self.logs['current_time'].append(current_time)
         return test_copy
+    
+
+
+# Registration form
+class RegistrationForm:
+    def __init__(self):
+        self.samples = 0
+
+
+    def reset(self):
+        self.samples = 0
+
+
+    def get_embedding(self, frame):
+        # get results from insightface model
+        results = faceapp.get(frame, max_num=1)
+        embeddings = None
+        for res in results:
+            self.samples += 1
+            x1, y1, x2, y2 = res['bbox'].astype(int)
+            cv2.rectangle(frame, (x1,y1), (x2,y2), (0,255,0), 1)
+
+            # add text samples info
+            text = f'samples = {self.samples}'
+            cv2.putText(frame, text, (x1,y1), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255,255,0), 2)
+
+            #facial embeddings
+            embeddings = res['embedding']
+
+        return frame, embeddings
+    
+
+    def save_data_in_db(self, name, role):
+        # validate name
+        if name is not None:
+            if name.strip() != '':
+                key = f'{name}@{role}'
+            else:
+                return 'invalid name'
+        else:
+            return 'invalid name'
+        
+        # validate face_embedding.txt 
+        if 'face_embedding.txt' not in os.listdir():
+            return 'invalid file'
+
+        # step-1: load face-embedding.txt
+        x_array = np.loadtxt('face_embedding.txt', dtype=np.float32)
+
+        # step-2: convert into array (proper shape)
+        received_samples = int(x_array.size / 512)
+        x_array = x_array.reshape(received_samples, 512)
+        x_array = np.asarray(x_array)
+
+        # step-3: calculate mean embedding
+        x_mean = x_array.mean(axis=0)
+        x_mean = x_mean.astype(np.float32)
+        x_mean_bytes = x_mean.tobytes()
+
+        # step-4: save into redis db
+        r.hset(name='academy:register', key=key, value=x_mean_bytes)
+
+        os.remove('face_embedding.txt')
+        self.reset()
+
+        return True
