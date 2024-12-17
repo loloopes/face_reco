@@ -1,3 +1,5 @@
+### Face Recognition APP
+
 Este é um Aplicativo de Reconhecimento Facial desenvolvido em Python para detecção e correspondência facial eficiente.
 O aplicativo detecta rostos, extrai embeddings e identifica os rostos mais similares usando um algoritmo de similaridade cosseno. 
 Os resultados, como caixas delimitadoras, são exibidos visualmente para melhor compreensão.
@@ -14,6 +16,7 @@ As bibliotecas utilizadas são:
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+### Face Recognition APP
 
 This is a Face Recognition App built in Python for efficient face detection and matching.
 The app detects faces, extracts embeddings, and identifies the most similar faces using a cosine similarity algorithm.
